@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kebutuhan Komputer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+        }
+        .input-field {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            font-size: 1.125rem;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="card w-full max-w-4xl p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Kalkulator Kebutuhan Komputer</h1>
+            <p class="text-gray-500 mt-2">Hitung kecukupan perangkat untuk pelaksanaan ujian atau pelatihan.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Kolom Input dan Ketentuan -->
+            <div class="space-y-6">
+                <!-- Bagian Input Data -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">1. Input Data</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="jumlah_komputer" class="block text-sm font-medium text-gray-600 mb-1">Jumlah Komputer Tersedia</label>
+                            <input type="number" id="jumlah_komputer" class="input-field" placeholder="Contoh: 50" oninput="hitungKebutuhan()">
+                        </div>
+                        <div>
+                            <label for="jumlah_peserta" class="block text-sm font-medium text-gray-600 mb-1">Jumlah Total Peserta</label>
+                            <input type="number" id="jumlah_peserta" class="input-field" placeholder="Contoh: 250" oninput="hitungKebutuhan()">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bagian Ketentuan -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">2. Ketentuan Pelaksanaan</h2>
+                    <div class="bg-gray-50 p-4 rounded-lg space-y-3">
+                         <div>
+                            <span class="text-gray-600 font-medium">Pilih Jumlah Gelombang</span>
+                            <div class="mt-2 flex space-x-6 text-sm">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="gelombang" value="1" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" onchange="hitungKebutuhan()">
+                                    <span class="ml-2 text-gray-700">1 Gelombang</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="gelombang" value="2" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked onchange="hitungKebutuhan()">
+                                    <span class="ml-2 text-gray-700">2 Gelombang</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-gray-600">Sesi per Gelombang</span>
+                            <span class="font-bold text-gray-800 bg-gray-200 px-3 py-1 rounded-full text-sm">3</span>
+                        </div>
+                        <hr>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 font-semibold">Total Sesi Pelaksanaan</span>
+                            <span id="total_sesi" class="font-bold text-blue-600 text-lg">6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Hasil Analisis -->
+            <div class="bg-blue-50 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b border-blue-200 pb-2">3. Hasil Analisis</h2>
+                <div class="space-y-5">
+                    <!-- Status Kecukupan -->
+                    <div class="text-center p-4 rounded-lg" id="status_card">
+                        <p class="text-sm font-medium uppercase tracking-wider" id="status_label">Status Kecukupan</p>
+                        <p class="text-3xl font-bold" id="status_hasil">-</p>
+                    </div>
+
+                    <!-- Rekomendasi (hidden by default) -->
+                    <div id="rekomendasi_card" class="hidden p-4 rounded-lg bg-yellow-100 border border-yellow-300">
+                        <h3 class="font-semibold text-yellow-800">Rekomendasi</h3>
+                        <p class="text-sm text-yellow-700 mt-1" id="rekomendasi_text"></p>
+                    </div>
+
+                    <!-- Detail Hasil -->
+                    <div class="space-y-4 pt-4">
+                        <div class="flex justify-between items-baseline">
+                            <p class="text-gray-600">Kapasitas Maksimal Total</p>
+                            <p class="result-value text-gray-800" id="total_kapasitas">0</p>
+                        </div>
+                        <div class="flex justify-between items-baseline">
+                            <p class="text-gray-600">Peserta Tidak Tertampung</p>
+                            <p class="result-value text-red-500" id="kekurangan_peserta">0</p>
+                        </div>
+                        <hr>
+                        <div class="flex justify-between items-baseline">
+                            <p class="text-gray-600">Komputer Ideal per Sesi</p>
+                            <p class="result-value text-gray-800" id="rata_rata_peserta">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk melakukan perhitungan
+        function hitungKebutuhan() {
+            // Ambil nilai dari input
+            const jumlahKomputer = parseInt(document.getElementById('jumlah_komputer').value) || 0;
+            const jumlahPeserta = parseInt(document.getElementById('jumlah_peserta').value) || 0;
+
+            // Ambil Ketentuan
+            const jumlahGelombang = parseInt(document.querySelector('input[name="gelombang"]:checked').value);
+            const sesiPerGelombang = 3;
+            const totalSesi = jumlahGelombang * sesiPerGelombang;
+            document.getElementById('total_sesi').textContent = totalSesi;
+
+            // Perhitungan
+            const totalKapasitas = jumlahKomputer * totalSesi;
+            const kekuranganPeserta = Math.max(0, jumlahPeserta - totalKapasitas);
+            const komputerIdeal = totalSesi > 0 ? Math.ceil(jumlahPeserta / totalSesi) : 0;
+            const tambahanKomputer = Math.max(0, komputerIdeal - jumlahKomputer);
+
+            // Update tampilan hasil
+            document.getElementById('total_kapasitas').textContent = totalKapasitas.toLocaleString('id-ID');
+            document.getElementById('kekurangan_peserta').textContent = kekuranganPeserta.toLocaleString('id-ID');
+            document.getElementById('rata_rata_peserta').textContent = komputerIdeal.toLocaleString('id-ID');
+
+            // Update tampilan status dan rekomendasi
+            const statusCard = document.getElementById('status_card');
+            const statusLabel = document.getElementById('status_label');
+            const statusHasil = document.getElementById('status_hasil');
+            const rekomendasiCard = document.getElementById('rekomendasi_card');
+            const rekomendasiText = document.getElementById('rekomendasi_text');
+
+            if (jumlahKomputer === 0 || jumlahPeserta === 0) {
+                statusCard.className = 'text-center p-4 rounded-lg bg-gray-200';
+                statusLabel.textContent = 'Status Kecukupan';
+                statusHasil.textContent = 'Menunggu Input';
+                rekomendasiCard.classList.add('hidden');
+            } else if (totalKapasitas >= jumlahPeserta) {
+                statusCard.className = 'text-center p-4 rounded-lg bg-green-100';
+                statusLabel.className = 'text-sm font-medium uppercase tracking-wider text-green-800';
+                statusHasil.textContent = 'CUKUP';
+                statusHasil.className = 'text-3xl font-bold text-green-600';
+                rekomendasiCard.classList.add('hidden');
+            } else {
+                statusCard.className = 'text-center p-4 rounded-lg bg-red-100';
+                statusLabel.className = 'text-sm font-medium uppercase tracking-wider text-red-800';
+                statusHasil.textContent = 'KURANG';
+                statusHasil.className = 'text-3xl font-bold text-red-600';
+                
+                rekomendasiText.textContent = `Anda perlu menambahkan minimal ${tambahanKomputer} unit komputer agar semua peserta tertampung dalam ${jumlahGelombang} gelombang.`;
+                rekomendasiCard.classList.remove('hidden');
+            }
+        }
+
+        // Jalankan fungsi saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', hitungKebutuhan);
+    </script>
+</body>
+</html>
